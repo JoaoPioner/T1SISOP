@@ -4,10 +4,10 @@ public class Executor {
 
     private int acumulador;
     private int pc;
-    private Map<String, Integer> variables;
-    private Map<String, Integer> labels;
-    private Queue<String> ready;
-    private Queue<String> exit;
+    private final Map<String, Integer> variables;
+    private final Map<String, Integer> labels;
+    private final Queue<String> ready;
+    private final Queue<String> exit;
 
     public Executor() {
         this.acumulador = 0;
@@ -15,6 +15,7 @@ public class Executor {
         this.variables = new HashMap<>();
         this.labels = new HashMap<>();
         this.ready = new PriorityQueue<>();// definir um comparator
+        this.exit = new PriorityQueue<>();// definir um comparator
     }
 
     public void gerenciarMemoria() {
@@ -31,7 +32,8 @@ public class Executor {
 
         while (pc < lines.size()) {
             String line = lines.get(pc).trim();
-            String[] splittedLine = line.split(" ");
+            String replace = line.replace("  ", " ");
+            String[] splittedLine = replace.split(" ");
 
             if (splittedLine[0].equalsIgnoreCase("BRZERO") && acumulador == 0) {
                 pc = labels.get(splittedLine[1]);
