@@ -5,43 +5,109 @@ public class Executor {
     private int acumulador;
     private int pc;
     private Map<String, Integer> variables;
-    private Queue <String> ready;
-    private Queue <String> exit;
+    private Map<String, Integer> labels;
+    private Queue<String> ready;
+    private Queue<String> exit;
 
     public Executor() {
         this.acumulador = 0;
         this.pc = 0;
         this.variables = new HashMap<>();
+        this.labels = new HashMap<>();
         this.ready = new PriorityQueue<>();// definir um comparator
     }
 
-    public void gerenciarMemoria(){}//memoria
+    public void gerenciarMemoria() {
+    }//memoria
 
     public void escalonador(List<String> jobs) {
 
     }
 
     public void executeLines(List<String> lines) {//running, tlvz 1 chamada por linha pelo escalonador?
+        Scanner input = new Scanner(System.in);
         loadVariables(lines);
-        System.out.println(variables);
+        loadLabels(lines);
 
-        for (int i = 0; i < lines.size(); i++) {
-            String[] splittedLine = lines.get(i).trim().split(" ");
-            System.out.println(splittedLine[0]);
-            if (splittedLine[0].endsWith(":")) {
-                acumulador = variables.get(splittedLine[splittedLine.length-1]);
-            }
-            if (splittedLine[0].equalsIgnoreCase("LOAD")) {
+        while (pc < lines.size()) {
+            String line = lines.get(pc).trim();
+            String[] splittedLine = line.split(" ");
+
+            if (splittedLine[0].equalsIgnoreCase("BRZERO") && acumulador == 0) {
+                pc = labels.get(splittedLine[1]);
+            } else if (splittedLine[0].equalsIgnoreCase("BRANY")) {
+                pc = labels.get(splittedLine[1]);
+            } else if (splittedLine[0].equalsIgnoreCase("BRPOS") && acumulador > 0) {
                 acumulador = variables.get(splittedLine[1]);
-            }
-            if (splittedLine[0].equalsIgnoreCase("STORE")) {
-                variables.replace(splittedLine[1],variables.get(splittedLine[1]),acumulador);
-            }
-            if (splittedLine[0].equalsIgnoreCase("ADD")) {
-                acumulador += Integer.parseInt(splittedLine[1]);
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("BRNEG") && acumulador < 0) {
+                acumulador = variables.get(splittedLine[1]);
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("LOAD")) {
+                acumulador = variables.get(splittedLine[1]);
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("STORE")) {
+                variables.replace(splittedLine[1], variables.get(splittedLine[1]), acumulador);
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("ADD")) {
+                String key = splittedLine[1];
+                if (key.trim().startsWith("#")) {
+                    acumulador += Integer.parseInt(key.substring(1));
+                } else {
+                    acumulador = variables.get(key);
+                }
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("SUB")) {
+                String key = splittedLine[1];
+                if (key.trim().startsWith("#")) {
+                    acumulador -= Integer.parseInt(key.substring(1));
+                } else {
+                    acumulador = variables.get(key);
+                }
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("MULT")) {
+                String key = splittedLine[1];
+                if (key.trim().startsWith("#")) {
+                    acumulador *= Integer.parseInt(key.substring(1));
+                } else {
+                    acumulador = variables.get(key);
+                }
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("DIV")) {
+                String key = splittedLine[1];
+                if (key.trim().startsWith("#")) {
+                    acumulador /= Integer.parseInt(key.substring(1));
+                } else {
+                    acumulador = variables.get(key);
+                }
+                pc++;
+            } else if (splittedLine[0].equalsIgnoreCase("SYSCALL")) {
+                String key = splittedLine[1];
+                if (key.trim().equalsIgnoreCase("0")) {
+                    System.exit(0);
+                }
+                if (key.trim().equalsIgnoreCase("1")) {
+                    System.out.println("Acumulador: " + acumulador);
+                }
+                if (key.trim().equalsIgnoreCase("2")) {
+                    System.out.print("Digite um valor: ");
+                    acumulador = input.nextInt();
+                }
+                pc++;
+            } else {
+                pc++;
             }
         }
         //sinalizar exit
+    }
+
+    private void loadLabels(List<String> lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i).trim();
+            if (line.endsWith(":")) {
+                labels.put(line.replace(":", ""), i);
+            }
+        }
     }
 
     private void loadVariables(List<String> lines) {
