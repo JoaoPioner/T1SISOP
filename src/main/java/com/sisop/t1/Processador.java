@@ -1,6 +1,8 @@
+package com.sisop.t1;
+
 import java.util.*;
 
-public class Executor {
+public class Processador {
 
     private int acumulador;
     private int pc;
@@ -9,7 +11,7 @@ public class Executor {
     private final Queue<String> ready;
     private final Queue<String> exit;
 
-    public Executor() {
+    public Processador() {
         this.acumulador = 0;
         this.pc = 0;
         this.variables = new HashMap<>();
