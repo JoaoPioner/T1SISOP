@@ -1,75 +1,139 @@
+package com.sisop.t1;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class PCB {
-    private int prioridade;// 2 - baixa, 1 - media, 0 - alta
-    private int localMemoria;// nsei se eh necessario
-    private String estadoProcesso;// ready, blocked, running, exit
-    private String idProcesso;// nome do arq(tlvz)
-    private int pc;// pc do programa
-    private int acumulador;// acumulador do programa/processo
-    private int quantum;// nro de iteracoes definido
+    private final Map<String, Integer> variables;
+    private final Map<String, Integer> labels;
+    private final List<String> lines;
+    private final List<String> code;
+    private final Integer priority;
+    private Integer pc;
+    private ProcessState state;
+    private Integer accumulator;
+    private Boolean finished;
+    private Integer blockTime;
 
-    public PCB(int prioridade, int localMemoria, String estadoProcesso, String idProcesso, int pc, int acumulador, int quantum) {
-        this.prioridade = prioridade;
-        this.localMemoria = localMemoria;
-        this.estadoProcesso = estadoProcesso;
-        this.idProcesso = idProcesso;
-        this.pc = pc;
-        this.acumulador = acumulador;
-        this.quantum = quantum;
+    public PCB(List<String> lines, Integer priority) {
+        this.variables = new HashMap<>();
+        this.labels = new HashMap<>();
+        this.code = new ArrayList<>();
+        this.lines = lines;
+        this.priority = priority;
+        this.pc = 0;
+        this.state = ProcessState.READY;
+        this.accumulator = 0;
+        this.finished = false;
+        this.blockTime = 0;
+        loadVariables(lines);
+        loadLabels(lines);
+        loadCode(lines);
     }
 
-    public int getPrioridade() {
-        return prioridade;
+    private void loadCode(List<String> linhas) {
+        int startCodeLines = 0;
+        int endCodeLines = 0;
+        for (int i = 0; i < linhas.size(); i++) {
+            if (linhas.get(i).contains(".code")) {
+                startCodeLines = i + 1;
+            }
+            if (linhas.get(i).contains(".endcode")) {
+                endCodeLines = i;
+            }
+        }
+
+        for (int i = startCodeLines; i < endCodeLines; i++) {
+            code.add(linhas.get(i).trim());
+        }
     }
 
-    public void setPrioridade(int prioridade) {
-        this.prioridade = prioridade;
+    private void loadLabels(List<String> lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i).trim();
+            if (line.endsWith(":")) {
+                labels.put(line.replace(":", ""), i);
+            }
+        }
     }
 
-    public int getLocalMemoria() {
-        return localMemoria;
+    private void loadVariables(List<String> lines) {
+        int startVariableLines = 0;
+        int endVariableLines = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains(".data")) {
+                startVariableLines = i;
+            }
+            if (lines.get(i).contains(".enddata")) {
+                endVariableLines = i;
+            }
+        }
+
+        for (int i = startVariableLines + 1; i < endVariableLines; i++) {
+            String[] variableLine = lines.get(i).trim().split(" ");
+            variables.put(variableLine[0], Integer.valueOf(variableLine[1]));
+        }
     }
 
-    public void setLocalMemoria(int localMemoria) {
-        this.localMemoria = localMemoria;
+    public Map<String, Integer> getVariables() {
+        return variables;
     }
 
-    public String getEstadoProcesso() {
-        return estadoProcesso;
+    public Map<String, Integer> getLabels() {
+        return labels;
     }
 
-    public void setEstadoProcesso(String estadoProcesso) {
-        this.estadoProcesso = estadoProcesso;
+    public List<String> getLines() {
+        return lines;
     }
 
-    public String getIdProcesso() {
-        return idProcesso;
+    public List<String> getCode() {
+        return code;
     }
 
-    public void setIdProcesso(String idProcesso) {
-        this.idProcesso = idProcesso;
+    public Integer getPriority() {
+        return priority;
     }
 
-    public int getPc() {
+    public Integer getPc() {
         return pc;
     }
 
-    public void setPc(int pc) {
+    public ProcessState getState() {
+        return state;
+    }
+
+    public Integer getAccumulator() {
+        return accumulator;
+    }
+
+    public void setPc(Integer pc) {
         this.pc = pc;
     }
 
-    public int getAcumulador() {
-        return acumulador;
+    public void setAccumulator(Integer accumulator) {
+        this.accumulator = accumulator;
     }
 
-    public void setAcumulador(int acumulador) {
-        this.acumulador = acumulador;
+    public void setState(ProcessState state) {
+        this.state = state;
     }
 
-    public int getQuantum() {
-        return quantum;
+    public Boolean getFinished() {
+        return finished;
     }
 
-    public void setQuantum(int quantum) {
-        this.quantum = quantum;
+    public void setFinished(Boolean finished) {
+        this.finished = finished;
+    }
+
+    public Integer getBlockTime() {
+        return blockTime;
+    }
+
+    public void setBlockTime(Integer blockTime) {
+        this.blockTime = blockTime;
     }
 }

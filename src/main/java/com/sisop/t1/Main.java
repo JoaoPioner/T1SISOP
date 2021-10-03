@@ -10,9 +10,8 @@ public class Main {
     private List<String> jobs;
 
     public static void main(String[] args) throws IOException {
-        Executor executor = new Executor();
 //        List<String> lines = Files.readAllLines(Path.of("C:/Users/jjvpi/Desktop/Semestre8/SISOP/T1/prog11.txt"));
-        List<String> lines = Arrays.asList((".code\n" +
+        List<String> prog1 = Arrays.asList((".code\n" +
                 "  load controle\n" +
                 "  syscall 2\n" +
                 "  store controle\n" +
@@ -41,6 +40,27 @@ public class Main {
                 "  controle 0\n" +
                 "  aux 0\n" +
                 ".enddata").split("\n"));
-        executor.executeLines(lines);
+        Integer prioridade1 = 0;
+        List<String> prog2 = Arrays.asList((".code\n" +
+                "  load controle\n" +
+                "  syscall 2\n" +
+                "  store controle\n" +
+                "loop:\n" +
+                "  load a\n" +
+                "  store controle\n" +
+                "  syscall 0\n" +
+                ".endcode\n" +
+                "\n" +
+                ".data\n" +
+                "  a 0\n" +
+                "  b 1\n" +
+                "  controle 0\n" +
+                "  aux 0\n" +
+                ".enddata").split("\n"));
+        Integer prioridade2 = 2;
+        PCB pcb1 = new PCB(prog1, prioridade1);
+        PCB pcb2 = new PCB(prog2, prioridade2);
+        SO so = new SO(pcb1, pcb2);
+        so.start();
     }
 }
