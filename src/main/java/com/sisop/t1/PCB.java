@@ -14,7 +14,6 @@ public class PCB {
     private Integer pc;
     private ProcessState state;
     private Integer accumulator;
-    private Boolean finished;
     private Integer blockTime;
 
     public PCB(List<String> lines, Integer priority) {
@@ -26,7 +25,6 @@ public class PCB {
         this.pc = 0;
         this.state = ProcessState.READY;
         this.accumulator = 0;
-        this.finished = false;
         this.blockTime = 0;
         loadVariables(lines);
         loadLabels(lines);
@@ -119,14 +117,6 @@ public class PCB {
 
     public void setState(ProcessState state) {
         this.state = state;
-    }
-
-    public Boolean getFinished() {
-        return finished;
-    }
-
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
     }
 
     public Integer getBlockTime() {
