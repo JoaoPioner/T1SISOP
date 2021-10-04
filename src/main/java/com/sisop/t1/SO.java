@@ -209,28 +209,28 @@ public class SO {
             if (key.trim().startsWith("#")) {
                 runningPCB.setAccumulator(runningPCB.getAccumulator() + Integer.parseInt(key.substring(1)));
             } else {
-                runningPCB.setAccumulator(runningPCB.getVariables().get(key));
+                runningPCB.setAccumulator(runningPCB.getAccumulator() + runningPCB.getVariables().get(key));
             }
         } else if (instruction[0].equalsIgnoreCase("SUB")) {
             String key = instruction[1];
             if (key.trim().startsWith("#")) {
                 runningPCB.setAccumulator(runningPCB.getAccumulator() - Integer.parseInt(key.substring(1)));
             } else {
-                runningPCB.setAccumulator(runningPCB.getVariables().get(key));
+                runningPCB.setAccumulator(runningPCB.getAccumulator() - runningPCB.getVariables().get(key));
             }
         } else if (instruction[0].equalsIgnoreCase("MULT")) {
             String key = instruction[1];
             if (key.trim().startsWith("#")) {
                 runningPCB.setAccumulator(runningPCB.getAccumulator() * Integer.parseInt(key.substring(1)));
             } else {
-                runningPCB.setAccumulator(runningPCB.getVariables().get(key));
+                runningPCB.setAccumulator(runningPCB.getAccumulator() * runningPCB.getVariables().get(key));
             }
         } else if (instruction[0].equalsIgnoreCase("DIV")) {
             String key = instruction[1];
             if (key.trim().startsWith("#")) {
                 runningPCB.setAccumulator(runningPCB.getAccumulator() / Integer.parseInt(key.substring(1)));
             } else {
-                runningPCB.setAccumulator(runningPCB.getVariables().get(key));
+                runningPCB.setAccumulator(runningPCB.getAccumulator() / runningPCB.getVariables().get(key));
             }
         }
     }
