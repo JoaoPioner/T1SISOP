@@ -35,7 +35,6 @@ public class SO {
 
     public void process() {
         while (!readyQueue.isEmpty() || !blockList.isEmpty() || !admissionQueue.isEmpty() || runningPCB != null) {
-            printAllProcess();
             updateAdmissionToReadyQueues();
             updateBlockedProcess();
             setPriorityRunningProcess();
@@ -43,6 +42,7 @@ public class SO {
             processLine();
             time++;
             runningQuantum--;
+            printAllProcess();
         }
     }
 
@@ -51,6 +51,7 @@ public class SO {
         List<Integer> runningProcess = new ArrayList<>();
         List<Integer> blockedProcess = new ArrayList<>();
         List<Integer> finishedProcess = new ArrayList<>();
+        List<Integer> admissionProcess = new ArrayList<>();
 
         for (int i = 0; i < allPCBs.size(); i++) {
             if (allPCBs.get(i).getState() == ProcessState.READY) {
@@ -65,9 +66,13 @@ public class SO {
             if (allPCBs.get(i).getState() == ProcessState.FINISHED) {
                 finishedProcess.add(i);
             }
+            if (allPCBs.get(i).getState() == ProcessState.ADMISSION) {
+                admissionProcess.add(i);
+            }
         }
         System.out.println();
         System.out.println("Tempo de execução: " + time);
+        System.out.println("Processos nas fila de admissão: " + admissionProcess);
         System.out.println("Processos prontos para execução: " + readyProcess);
         System.out.println("Processo em execução: " + runningProcess);
         System.out.println("Processos bloqueados: " + blockedProcess);
@@ -179,7 +184,7 @@ public class SO {
                 runningPCB = null;
             }
             if (key.trim().equalsIgnoreCase("1")) {
-                int timeBlocked = new Random().nextInt(21) + 10;
+                int timeBlocked = 15;
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
@@ -187,7 +192,7 @@ public class SO {
                 runningPCB = null;
             }
             if (key.trim().equalsIgnoreCase("2")) {
-                int timeBlocked = new Random().nextInt(21) + 10;
+                int timeBlocked = 15;
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
