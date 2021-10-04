@@ -4,37 +4,30 @@ import java.util.*;
 
 public class SO {
     private final Queue<PCB> readyQueue;
+    private final List<PCB> admissionQueue;
     private final List<PCB> blockList;
-    private final List<PCB> pcbs;
     private final Scanner input;
     private PCB runningPCB;
     private Integer time;
 
-    public SO(PCB... pcbs) {
+    public SO(List<PCB> pcbs) {
         this.readyQueue = new PriorityQueue<>(Comparator.comparing(PCB::getPriority));
         this.blockList = new ArrayList<>();
-        this.pcbs = Arrays.asList(pcbs);
+        this.admissionQueue = new ArrayList<>();
         this.input = new Scanner(System.in);
         this.time = 0;
-        fillReadyQueue();
+        this.admissionQueue.addAll(pcbs);
     }
 
     public void start() {
-        while (!readyQueue.isEmpty() || !blockList.isEmpty()) {
+        while (!readyQueue.isEmpty() || !blockList.isEmpty() || !admissionQueue.isEmpty() || runningPCB != null) {
             process();
             time++;
         }
     }
 
-    private void fillReadyQueue() {
-        for (PCB pcb : pcbs) {
-            if (pcb.getState() == ProcessState.READY) {
-                readyQueue.add(pcb);
-            }
-        }
-    }
-
     private void process() {
+        updateAdmissionToReadyQueues();
         updateBlockedProcess();
         setPriorityRunningProcess();
         if (runningPCB == null) {
@@ -46,17 +39,30 @@ public class SO {
         executeInstruction(clearLine);
     }
 
+    private void updateAdmissionToReadyQueues() {
+        List<PCB> readyPCBs = new ArrayList<>();
+        for (PCB pcb : admissionQueue) {
+            if (pcb.getArrivalTime() == 0) {
+                readyQueue.add(pcb);
+                readyPCBs.add(pcb);
+            } else {
+                pcb.setArrivalTime(pcb.getArrivalTime() - 1);
+            }
+        }
+        admissionQueue.removeAll(readyPCBs);
+    }
+
     private void updateBlockedProcess() {
-        List<PCB> newBlockList = new ArrayList<>();
+        List<PCB> readyPCBs = new ArrayList<>();
         for (PCB blockedProcess : blockList) {
             if (blockedProcess.getBlockTime() == 0) {
                 readyQueue.add(blockedProcess);
-                newBlockList.add(blockedProcess);
+                readyPCBs.add(blockedProcess);
             } else {
                 blockedProcess.setBlockTime(blockedProcess.getBlockTime() - 1);
             }
         }
-        blockList.removeAll(newBlockList);
+        blockList.removeAll(readyPCBs);
     }
 
     private void setPriorityRunningProcess() {
@@ -75,19 +81,40 @@ public class SO {
     private void executeInstruction(String clearLine) {
         String[] instruction = clearLine.split(" ");
         runningPCB.setPc(runningPCB.getPc() + 1);
-        if (instruction[0].equalsIgnoreCase("BRZERO") && runningPCB.getAccumulator() == 0) {
-            runningPCB.setPc(runningPCB.getLabels().get(instruction[1]));
-        } else if (instruction[0].equalsIgnoreCase("BRANY")) {
-            runningPCB.setPc(runningPCB.getLabels().get(instruction[1]));
-        } else if (instruction[0].equalsIgnoreCase("BRPOS") && runningPCB.getAccumulator() > 0) {
-            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
-        } else if (instruction[0].equalsIgnoreCase("BRNEG") && runningPCB.getAccumulator() < 0) {
-            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
-        } else if (instruction[0].equalsIgnoreCase("LOAD")) {
-            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
-        } else if (instruction[0].equalsIgnoreCase("STORE")) {
-            runningPCB.getVariables().replace(instruction[1], runningPCB.getVariables().get(instruction[1]), runningPCB.getAccumulator());
-        } else if (instruction[0].equalsIgnoreCase("ADD")) {
+        verifyAndExecuteBranchCommands(instruction);
+        verifyAndExecuteVariableChangeCommands(instruction);
+        verifyAndExecuteMathCommands(instruction);
+        verifyAndExecuteSyscallCommands(instruction);
+    }
+
+    private void verifyAndExecuteSyscallCommands(String[] instruction) {
+        if (instruction[0].equalsIgnoreCase("SYSCALL")) {
+            String key = instruction[1];
+            if (key.trim().equalsIgnoreCase("0")) {
+                runningPCB = null;
+            }
+            if (key.trim().equalsIgnoreCase("1")) {
+                int timeBlocked = new Random().nextInt(21) + 10;
+                runningPCB.setBlockTime(timeBlocked);
+                runningPCB.setState(ProcessState.BLOCKED);
+                blockList.add(runningPCB);
+                System.out.println("Acumulador: " + runningPCB.getAccumulator());
+                runningPCB = null;
+            }
+            if (key.trim().equalsIgnoreCase("2")) {
+                int timeBlocked = new Random().nextInt(21) + 10;
+                runningPCB.setBlockTime(timeBlocked);
+                runningPCB.setState(ProcessState.BLOCKED);
+                blockList.add(runningPCB);
+                System.out.print("Digite um valor: ");
+                runningPCB.setAccumulator(input.nextInt());
+                runningPCB = null;
+            }
+        }
+    }
+
+    private void verifyAndExecuteMathCommands(String[] instruction) {
+        if (instruction[0].equalsIgnoreCase("ADD")) {
             String key = instruction[1];
             if (key.trim().startsWith("#")) {
                 runningPCB.setAccumulator(runningPCB.getAccumulator() + Integer.parseInt(key.substring(1)));
@@ -115,28 +142,26 @@ public class SO {
             } else {
                 runningPCB.setAccumulator(runningPCB.getVariables().get(key));
             }
-        } else if (instruction[0].equalsIgnoreCase("SYSCALL")) {
-            String key = instruction[1];
-            if (key.trim().equalsIgnoreCase("0")) {
-                runningPCB = null;
-            }
-            if (key.trim().equalsIgnoreCase("1")) {
-                int timeBlocked = new Random().nextInt(21) + 10;
-                runningPCB.setBlockTime(timeBlocked);
-                runningPCB.setState(ProcessState.BLOCKED);
-                blockList.add(runningPCB);
-                System.out.println("Acumulador: " + runningPCB.getAccumulator());
-                runningPCB = null;
-            }
-            if (key.trim().equalsIgnoreCase("2")) {
-                int timeBlocked = new Random().nextInt(21) + 10;
-                runningPCB.setBlockTime(timeBlocked);
-                runningPCB.setState(ProcessState.BLOCKED);
-                blockList.add(runningPCB);
-                System.out.print("Digite um valor: ");
-                runningPCB.setAccumulator(input.nextInt());
-                runningPCB = null;
-            }
+        }
+    }
+
+    private void verifyAndExecuteVariableChangeCommands(String[] instruction) {
+        if (instruction[0].equalsIgnoreCase("LOAD")) {
+            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
+        } else if (instruction[0].equalsIgnoreCase("STORE")) {
+            runningPCB.getVariables().replace(instruction[1], runningPCB.getVariables().get(instruction[1]), runningPCB.getAccumulator());
+        }
+    }
+
+    private void verifyAndExecuteBranchCommands(String[] instruction) {
+        if (instruction[0].equalsIgnoreCase("BRZERO") && runningPCB.getAccumulator() == 0) {
+            runningPCB.setPc(runningPCB.getLabels().get(instruction[1]));
+        } else if (instruction[0].equalsIgnoreCase("BRANY")) {
+            runningPCB.setPc(runningPCB.getLabels().get(instruction[1]));
+        } else if (instruction[0].equalsIgnoreCase("BRPOS") && runningPCB.getAccumulator() > 0) {
+            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
+        } else if (instruction[0].equalsIgnoreCase("BRNEG") && runningPCB.getAccumulator() < 0) {
+            runningPCB.setAccumulator(runningPCB.getVariables().get(instruction[1]));
         }
     }
 }
