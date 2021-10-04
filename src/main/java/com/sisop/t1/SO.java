@@ -184,7 +184,7 @@ public class SO {
                 runningPCB = null;
             }
             if (key.trim().equalsIgnoreCase("1")) {
-                int timeBlocked = 15;
+                int timeBlocked = new Random().nextInt(21) + 10;
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
@@ -192,7 +192,7 @@ public class SO {
                 runningPCB = null;
             }
             if (key.trim().equalsIgnoreCase("2")) {
-                int timeBlocked = 15;
+                int timeBlocked = new Random().nextInt(21) + 10;
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
