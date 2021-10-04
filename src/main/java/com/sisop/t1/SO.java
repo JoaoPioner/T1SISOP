@@ -6,6 +6,7 @@ public class SO {
     private final Queue<PCB> readyQueue;
     private final List<PCB> admissionQueue;
     private final List<PCB> blockList;
+    private final List<PCB> allPCBs;
     private final Scanner input;
     private final EscalationPolicies policy;
     private PCB runningPCB;
@@ -17,6 +18,7 @@ public class SO {
         this.policy = policy;
         this.blockList = new ArrayList<>();
         this.admissionQueue = new ArrayList<>();
+        this.allPCBs = pcbs;
         this.input = new Scanner(System.in);
         this.time = 0;
         this.runningQuantum = 0;
@@ -31,20 +33,62 @@ public class SO {
         }
     }
 
-    public void start() {
+    public void process() {
         while (!readyQueue.isEmpty() || !blockList.isEmpty() || !admissionQueue.isEmpty() || runningPCB != null) {
+            printAllProcess();
             updateAdmissionToReadyQueues();
             updateBlockedProcess();
             setPriorityRunningProcess();
+            updateTimeInfos();
             processLine();
             time++;
             runningQuantum--;
         }
     }
 
+    private void printAllProcess() {
+        List<Integer> readyProcess = new ArrayList<>();
+        List<Integer> runningProcess = new ArrayList<>();
+        List<Integer> blockedProcess = new ArrayList<>();
+        List<Integer> finishedProcess = new ArrayList<>();
+
+        for (int i = 0; i < allPCBs.size(); i++) {
+            if (allPCBs.get(i).getState() == ProcessState.READY) {
+                readyProcess.add(i);
+            }
+            if (allPCBs.get(i).getState() == ProcessState.RUNNING) {
+                runningProcess.add(i);
+            }
+            if (allPCBs.get(i).getState() == ProcessState.BLOCKED) {
+                blockedProcess.add(i);
+            }
+            if (allPCBs.get(i).getState() == ProcessState.FINISHED) {
+                finishedProcess.add(i);
+            }
+        }
+        System.out.println();
+        System.out.println("Tempo de execução: " + time);
+        System.out.println("Processos prontos para execução: " + readyProcess);
+        System.out.println("Processo em execução: " + runningProcess);
+        System.out.println("Processos bloqueados: " + blockedProcess);
+        System.out.println("Processos finalizados: " + finishedProcess);
+    }
+
+    private void updateTimeInfos() {
+        readyQueue.forEach(PCB::addWaitingTime);
+        readyQueue.forEach(PCB::addTurnaroundTime);
+
+        if (runningPCB != null) {
+            runningPCB.addProcessingTime();
+            runningPCB.addTurnaroundTime();
+        }
+        for (PCB pcb : blockList) {
+            pcb.addTurnaroundTime();
+        }
+    }
+
     private void processLine() {
         if (runningPCB == null) {
-            System.out.println("Nenhum programa pronto pra execução.");
             return;
         }
         String line = runningPCB.getCode().get(runningPCB.getPc()).trim();
@@ -55,8 +99,9 @@ public class SO {
     private void updateAdmissionToReadyQueues() {
         List<PCB> readyPCBs = new ArrayList<>();
         for (PCB pcb : admissionQueue) {
-            if (pcb.getArrivalTime() == time) {
+            if (Objects.equals(pcb.getArrivalTime(), time)) {
                 readyQueue.add(pcb);
+                pcb.setState(ProcessState.READY);
                 readyPCBs.add(pcb);
             }
         }
@@ -68,6 +113,7 @@ public class SO {
         for (PCB blockedProcess : blockList) {
             if (blockedProcess.getBlockTime() == 0) {
                 readyQueue.add(blockedProcess);
+                blockedProcess.setState(ProcessState.READY);
                 readyPCBs.add(blockedProcess);
             } else {
                 blockedProcess.setBlockTime(blockedProcess.getBlockTime() - 1);
@@ -87,9 +133,6 @@ public class SO {
     private void setRoundRobinPCB() {
         if (runningPCB == null) {
             runningPCB = readyQueue.poll();
-            if (runningPCB != null) {
-                runningQuantum = runningPCB.getQuantum();
-            }
         }
         if (runningQuantum == 0) {
             readyQueue.add(runningPCB);
@@ -98,11 +141,17 @@ public class SO {
                 runningQuantum = runningPCB.getQuantum();
             }
         }
+        if (runningPCB != null) {
+            runningPCB.setState(ProcessState.RUNNING);
+        }
     }
 
     private void setPriorityPCB() {
         if (runningPCB == null) {
             runningPCB = readyQueue.poll();
+            if (runningPCB != null) {
+                runningPCB.setState(ProcessState.RUNNING);
+            }
         }
         PCB newPcb = readyQueue.peek();
         if (newPcb != null && newPcb.getPriority() < this.runningPCB.getPriority()) {
@@ -126,6 +175,7 @@ public class SO {
         if (instruction[0].equalsIgnoreCase("SYSCALL")) {
             String key = instruction[1];
             if (key.trim().equalsIgnoreCase("0")) {
+                runningPCB.setState(ProcessState.FINISHED);
                 runningPCB = null;
             }
             if (key.trim().equalsIgnoreCase("1")) {

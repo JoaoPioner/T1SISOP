@@ -31,7 +31,7 @@ public class Main {
                 System.out.println("Deseja definir a prioridade do programa? S - Sim / N - Não");
                 System.out.print("Opção: ");
                 String opcaoPrioridade = scanner.next();
-                prioridade = buscarPrioridade(scanner, opcaoPrioridade);
+                prioridade = getPriority(scanner, opcaoPrioridade);
             } else {
                 System.out.println("Digite o quantum do programa: ");
                 System.out.print("Opção: ");
@@ -45,10 +45,18 @@ public class Main {
         System.out.println("\n");
         System.out.println("INICIO DA EXECUÇÃO\n");
         SO so = new SO(pcbs, escalationPolicies);
-        so.start();
+        so.process();
+
+        System.out.println("\n\nResultado da execução:");
+        for (int i = 0; i < pcbs.size(); i++) {
+            System.out.println("\nExecução do processo " + (i + 1) + ": ");
+            System.out.println("Tempo de espera: " + pcbs.get(i).getWaitingTime());
+            System.out.println("Tempo em processo: " + pcbs.get(i).getProcessingTime());
+            System.out.println("Tempo total: " + pcbs.get(i).getTurnaroundTime());
+        }
     }
 
-    private static Integer buscarPrioridade(Scanner scanner, String opcaoPrioridade) {
+    private static Integer getPriority(Scanner scanner, String opcaoPrioridade) {
         if (opcaoPrioridade.equalsIgnoreCase("S")) {
             System.out.print("Digite a prioridade: ");
             return scanner.nextInt();

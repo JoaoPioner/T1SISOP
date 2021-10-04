@@ -12,11 +12,14 @@ public class PCB {
     private final List<String> code;
     private final Integer priority;
     private final Integer quantum;
-    private Integer arrivalTime;
+    private final Integer arrivalTime;
     private Integer pc;
     private ProcessState state;
     private Integer accumulator;
     private Integer blockTime;
+    private Integer waitingTime;
+    private Integer processingTime;
+    private Integer turnaroundTime;
 
     public PCB(List<String> lines, Integer priority, Integer arrivalTime, Integer quantum) {
         this.variables = new HashMap<>();
@@ -28,8 +31,11 @@ public class PCB {
         this.accumulator = 0;
         this.blockTime = 0;
         this.arrivalTime = arrivalTime;
-        this.state = ProcessState.READY;
+        this.state = ProcessState.ADMISSION;
         this.quantum = quantum;
+        this.waitingTime = 0;
+        this.processingTime = 0;
+        this.turnaroundTime = 0;
         loadVariables(lines);
         loadLabels(lines);
         loadCode(lines);
@@ -127,19 +133,39 @@ public class PCB {
         return blockTime;
     }
 
-    public void setBlockTime(Integer blockTime) {
-        this.blockTime = blockTime;
-    }
-
     public Integer getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(Integer arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
     public Integer getQuantum() {
         return quantum;
+    }
+
+    public void setBlockTime(Integer blockTime) {
+        this.blockTime = blockTime;
+    }
+
+    public Integer getWaitingTime() {
+        return waitingTime;
+    }
+
+    public Integer getProcessingTime() {
+        return processingTime;
+    }
+
+    public Integer getTurnaroundTime() {
+        return turnaroundTime;
+    }
+
+    public void addWaitingTime() {
+        this.waitingTime++;
+    }
+
+    public void addProcessingTime() {
+        this.processingTime++;
+    }
+
+    public void addTurnaroundTime() {
+        this.turnaroundTime++;
     }
 }
