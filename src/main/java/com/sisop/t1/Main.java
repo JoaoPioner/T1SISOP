@@ -1,72 +1,72 @@
 package com.sisop.t1;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+
         List<PCB> pcbs = new ArrayList<>();
-//        List<String> lines = Files.readAllLines(Path.of("C:/Users/jjvpi/Desktop/Semestre8/SISOP/T1/prog11.txt"));
-        List<String> prog1 = Arrays.asList((".code\n" +
-                "  load controle\n" +
-                "  syscall 2\n" +
-                "  store controle\n" +
-                "loop:\n" +
-                "  BRZERO fim\n" +
-                "  load a\n" +
-                "  add b\n" +
-                "  store aux\n" +
-                "  load b\n" +
-                "  store a\n" +
-                "  load aux\n" +
-                "  store b\n" +
-                "  load controle\n" +
-                "  sub #1\n" +
-                "  store controle\n" +
-                "  BRANY loop\n" +
-                "fim:\n" +
-                "  load b\n" +
-                "  syscall 1\n" +
-                "  syscall 0\n" +
-                ".endcode\n" +
-                "\n" +
-                ".data\n" +
-                "  a 0\n" +
-                "  b 1\n" +
-                "  controle 0\n" +
-                "  aux 0\n" +
-                ".enddata").split("\n"));
-        Integer prioridade1 = 0;
-        Integer arrivalTime1 = 50;
-        Integer quantum1 = 0;
-        List<String> prog2 = Arrays.asList((".code\n" +
-                "  load controle\n" +
-                "  store controle\n" +
-                "loop:\n" +
-                "  load a\n" +
-                "  store controle\n" +
-                "  syscall 0\n" +
-                ".endcode\n" +
-                "\n" +
-                ".data\n" +
-                "  a 0\n" +
-                "  b 1\n" +
-                "  controle 0\n" +
-                "  aux 0\n" +
-                ".enddata").split("\n"));
-        Integer prioridade2 = 2;
-        Integer arrivalTime2 = 0;
-        Integer quantum2 = 0;
+        EscalationPolicies escalationPolicies = defineEscalationPolicy(scanner);
+        System.out.println("Deseja adicionar um programa? S - Sim / N - Não");
+        System.out.print("Opção: ");
+        String opcao = scanner.next();
 
-        PCB pcb1 = new PCB(prog1, prioridade1, arrivalTime1, quantum1);
-        PCB pcb2 = new PCB(prog2, prioridade2, arrivalTime2, quantum2);
-        pcbs.add(pcb1);
-        pcbs.add(pcb2);
-
-        SO so = new SO(pcbs, EscalationPolicies.ROUND_ROBIN);
+        while (opcao.equalsIgnoreCase("S")) {
+            System.out.println("Digite o caminho do arquivo: ");
+            scanner = new Scanner(System.in);
+            String path = scanner.nextLine();
+            List<String> lines = Files.readAllLines(Path.of(path));
+            System.out.println("Digite o tempo de inicio do programa: ");
+            Integer arrivalTime = scanner.nextInt();
+            int prioridade = 0;
+            int quantum = 0;
+            if (escalationPolicies == EscalationPolicies.PRIORITY) {
+                System.out.println("Deseja definir a prioridade do programa? S - Sim / N - Não");
+                System.out.print("Opção: ");
+                String opcaoPrioridade = scanner.next();
+                prioridade = buscarPrioridade(scanner, opcaoPrioridade);
+            } else {
+                System.out.println("Digite o quantum do programa: ");
+                System.out.print("Opção: ");
+                quantum = scanner.nextInt();
+            }
+            pcbs.add(new PCB(lines, prioridade, arrivalTime, quantum));
+            System.out.println("Deseja adicionar um novo programa? S - Sim / N - Não");
+            System.out.print("Opção: ");
+            opcao = scanner.next();
+        }
+        System.out.println("\n");
+        System.out.println("INICIO DA EXECUÇÃO\n");
+        SO so = new SO(pcbs, escalationPolicies);
         so.start();
+    }
+
+    private static Integer buscarPrioridade(Scanner scanner, String opcaoPrioridade) {
+        if (opcaoPrioridade.equalsIgnoreCase("S")) {
+            System.out.print("Digite a prioridade: ");
+            return scanner.nextInt();
+        } else {
+            return 2;
+        }
+    }
+
+    private static EscalationPolicies defineEscalationPolicy(Scanner scanner) {
+        System.out.println("Digite qual politica de escalonamento desejada: ");
+        System.out.println("1 - Prioridade");
+        System.out.println("2 - Round robin");
+        System.out.print("Opção: ");
+        int opcao = scanner.nextInt();
+        if (opcao == 1) {
+            return EscalationPolicies.PRIORITY;
+        } else {
+            return EscalationPolicies.ROUND_ROBIN;
+        }
     }
 }
