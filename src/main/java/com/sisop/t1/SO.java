@@ -7,29 +7,42 @@ public class SO {
     private final List<PCB> admissionQueue;
     private final List<PCB> blockList;
     private final Scanner input;
+    private final EscalationPolicies policy;
     private PCB runningPCB;
+    private Integer runningQuantum;
     private Integer time;
 
-    public SO(List<PCB> pcbs) {
-        this.readyQueue = new PriorityQueue<>(Comparator.comparing(PCB::getPriority));
+    public SO(List<PCB> pcbs, EscalationPolicies policy) {
+        this.readyQueue = setQueuePriority(policy);
+        this.policy = policy;
         this.blockList = new ArrayList<>();
         this.admissionQueue = new ArrayList<>();
         this.input = new Scanner(System.in);
         this.time = 0;
+        this.runningQuantum = 0;
         this.admissionQueue.addAll(pcbs);
+    }
+
+    private Queue<PCB> setQueuePriority(EscalationPolicies policy) {
+        if (policy == EscalationPolicies.PRIORITY) {
+            return new PriorityQueue<>(Comparator.comparing(PCB::getPriority));
+        } else {
+            return new LinkedList<>();
+        }
     }
 
     public void start() {
         while (!readyQueue.isEmpty() || !blockList.isEmpty() || !admissionQueue.isEmpty() || runningPCB != null) {
-            process();
+            updateAdmissionToReadyQueues();
+            updateBlockedProcess();
+            setPriorityRunningProcess();
+            processLine();
             time++;
+            runningQuantum--;
         }
     }
 
-    private void process() {
-        updateAdmissionToReadyQueues();
-        updateBlockedProcess();
-        setPriorityRunningProcess();
+    private void processLine() {
         if (runningPCB == null) {
             System.out.println("Nenhum programa pronto pra execução.");
             return;
@@ -42,11 +55,9 @@ public class SO {
     private void updateAdmissionToReadyQueues() {
         List<PCB> readyPCBs = new ArrayList<>();
         for (PCB pcb : admissionQueue) {
-            if (pcb.getArrivalTime() == 0) {
+            if (pcb.getArrivalTime() == time) {
                 readyQueue.add(pcb);
                 readyPCBs.add(pcb);
-            } else {
-                pcb.setArrivalTime(pcb.getArrivalTime() - 1);
             }
         }
         admissionQueue.removeAll(readyPCBs);
@@ -66,6 +77,30 @@ public class SO {
     }
 
     private void setPriorityRunningProcess() {
+        if (policy == EscalationPolicies.PRIORITY) {
+            setPriorityPCB();
+        } else {
+            setRoundRobinPCB();
+        }
+    }
+
+    private void setRoundRobinPCB() {
+        if (runningPCB == null) {
+            runningPCB = readyQueue.poll();
+            if (runningPCB != null) {
+                runningQuantum = runningPCB.getQuantum();
+            }
+        }
+        if (runningQuantum == 0) {
+            readyQueue.add(runningPCB);
+            runningPCB = readyQueue.poll();
+            if (runningPCB != null) {
+                runningQuantum = runningPCB.getQuantum();
+            }
+        }
+    }
+
+    private void setPriorityPCB() {
         if (runningPCB == null) {
             runningPCB = readyQueue.poll();
         }

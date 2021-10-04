@@ -41,6 +41,7 @@ public class Main {
                 ".enddata").split("\n"));
         Integer prioridade1 = 0;
         Integer arrivalTime1 = 50;
+        Integer quantum1 = 0;
         List<String> prog2 = Arrays.asList((".code\n" +
                 "  load controle\n" +
                 "  store controle\n" +
@@ -58,12 +59,14 @@ public class Main {
                 ".enddata").split("\n"));
         Integer prioridade2 = 2;
         Integer arrivalTime2 = 0;
-        PCB pcb1 = new PCB(prog1, prioridade1, arrivalTime1);
-        PCB pcb2 = new PCB(prog2, prioridade2, arrivalTime2);
+        Integer quantum2 = 0;
+
+        PCB pcb1 = new PCB(prog1, prioridade1, arrivalTime1, quantum1);
+        PCB pcb2 = new PCB(prog2, prioridade2, arrivalTime2, quantum2);
         pcbs.add(pcb1);
         pcbs.add(pcb2);
 
-        SO so = new SO(pcbs);
+        SO so = new SO(pcbs, EscalationPolicies.ROUND_ROBIN);
         so.start();
     }
 }
