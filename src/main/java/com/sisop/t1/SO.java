@@ -145,9 +145,16 @@ public class SO {
     private void setRoundRobinPCB() {
         if (runningPCB == null) {
             runningPCB = readyQueue.poll();
+            if (runningPCB != null) {
+                runningQuantum = runningPCB.getQuantum();
+            }
         }
         if (runningQuantum == 0) {
             readyQueue.add(runningPCB);
+
+            if (runningPCB != null) {
+                runningPCB.setState(ProcessState.READY);
+            }
             runningPCB = readyQueue.poll();
             if (runningPCB != null) {
                 runningQuantum = runningPCB.getQuantum();
