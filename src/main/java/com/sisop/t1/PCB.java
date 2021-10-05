@@ -59,18 +59,14 @@ public class PCB {
 
         for (int i = startCodeLines; i < endCodeLines; i++) {
             String line = linhas.get(i).trim();
-            if (!line.endsWith(":")) {
-                code.add(line);
-            }
+            code.add(line);
         }
     }
 
     private void loadLabels(List<String> lines) {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).trim();
-            if (line.endsWith(":")) {
-                labels.put(line.replace(":", ""), (i - 1));
-            }
+            labels.put(line.replace(":", ""), (i - 1));
         }
     }
 
