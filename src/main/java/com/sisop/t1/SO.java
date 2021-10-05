@@ -3,6 +3,9 @@ package com.sisop.t1;
 import java.util.*;
 
 public class SO {
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+
     private final Queue<PCB> readyQueue;
     private final List<PCB> admissionQueue;
     private final List<PCB> blockList;
@@ -193,7 +196,7 @@ public class SO {
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
-                System.out.println("Acumulador: " + runningPCB.getAccumulator());
+                System.out.println(ANSI_RED + "Acumulador do processo " + runningPCB.getPid() + ": " + runningPCB.getAccumulator() + ANSI_RESET);
                 runningPCB = null;
                 printAllProcess();
             }
@@ -202,7 +205,7 @@ public class SO {
                 runningPCB.setBlockTime(timeBlocked);
                 runningPCB.setState(ProcessState.BLOCKED);
                 blockList.add(runningPCB);
-                System.out.print("Digite um valor: ");
+                System.out.print(ANSI_RED + "Digite um valor para o acumulador do processo " + runningPCB.getPid() + ": " + ANSI_RESET);
                 runningPCB.setAccumulator(input.nextInt());
                 runningPCB = null;
                 printAllProcess();

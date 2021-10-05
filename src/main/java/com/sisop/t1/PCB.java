@@ -13,6 +13,7 @@ public class PCB {
     private final Integer priority;
     private final Integer quantum;
     private final Integer arrivalTime;
+    private Integer pid;
     private Integer pc;
     private ProcessState state;
     private Integer accumulator;
@@ -22,7 +23,7 @@ public class PCB {
     private Integer turnaroundTime;
     private Integer admissionTime;
 
-    public PCB(List<String> lines, Integer priority, Integer arrivalTime, Integer quantum) {
+    public PCB(List<String> lines, Integer priority, Integer arrivalTime, Integer quantum, Integer pid) {
         this.variables = new HashMap<>();
         this.labels = new HashMap<>();
         this.code = new ArrayList<>();
@@ -38,6 +39,7 @@ public class PCB {
         this.processingTime = 0;
         this.turnaroundTime = 0;
         this.admissionTime = 0;
+        this.pid = pid;
         loadVariables(lines);
         loadLabels(lines);
         loadCode(lines);
@@ -177,5 +179,9 @@ public class PCB {
 
     public void addAdmissionTime() {
         this.admissionTime++;
+    }
+
+    public Integer getPid() {
+        return pid;
     }
 }

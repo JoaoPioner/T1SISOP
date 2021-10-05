@@ -37,7 +37,7 @@ public class Main {
                 System.out.print("Opção: ");
                 quantum = scanner.nextInt();
             }
-            pcbs.add(new PCB(lines, prioridade, arrivalTime, quantum));
+            pcbs.add(new PCB(lines, prioridade, arrivalTime, quantum, pcbs.size()));
             System.out.println("Processo com id " + (pcbs.size() - 1) + " criado.\n");
             System.out.println("Deseja adicionar um novo programa? S - Sim / N - Não");
             System.out.print("Opção: ");
