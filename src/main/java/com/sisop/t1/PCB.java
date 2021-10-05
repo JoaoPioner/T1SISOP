@@ -66,7 +66,7 @@ public class PCB {
     private void loadLabels(List<String> lines) {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).trim();
-            labels.put(line.replace(":", ""), (i - 1));
+            labels.put(line.replace(":", ""), i);
         }
     }
 
