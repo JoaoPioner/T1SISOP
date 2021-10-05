@@ -13,7 +13,7 @@ public class PCB {
     private final Integer priority;
     private final Integer quantum;
     private final Integer arrivalTime;
-    private Integer pid;
+    private final Integer pid;
     private Integer pc;
     private ProcessState state;
     private Integer accumulator;
@@ -58,7 +58,10 @@ public class PCB {
         }
 
         for (int i = startCodeLines; i < endCodeLines; i++) {
-            code.add(linhas.get(i).trim());
+            String line = linhas.get(i).trim();
+            if (!line.endsWith(":")) {
+                code.add(line);
+            }
         }
     }
 
@@ -66,7 +69,7 @@ public class PCB {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).trim();
             if (line.endsWith(":")) {
-                labels.put(line.replace(":", ""), i);
+                labels.put(line.replace(":", ""), (i - 1));
             }
         }
     }

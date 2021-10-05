@@ -49,12 +49,12 @@ public class Main {
         so.process();
 
         System.out.println("\n\nResultado da execução:");
-        for (int i = 0; i < pcbs.size(); i++) {
-            System.out.println("\nExecução do processo " + (i + 1) + ": ");
-            System.out.println("Tempo na fila de admissão: " + pcbs.get(i).getAdmissionTime());
-            System.out.println("Tempo de espera: " + pcbs.get(i).getWaitingTime());
-            System.out.println("Tempo em processo: " + pcbs.get(i).getProcessingTime());
-            System.out.println("Tempo total: " + pcbs.get(i).getTurnaroundTime());
+        for (PCB pcb : pcbs) {
+            System.out.println("\nExecução do processo " + pcb.getPid() + ": ");
+            System.out.println("Tempo na fila de admissão: " + pcb.getAdmissionTime());
+            System.out.println("Tempo de espera: " + pcb.getWaitingTime());
+            System.out.println("Tempo em processo: " + pcb.getProcessingTime());
+            System.out.println("Tempo total: " + pcb.getTurnaroundTime());
         }
     }
 
