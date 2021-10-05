@@ -38,6 +38,7 @@ public class Main {
                 quantum = scanner.nextInt();
             }
             pcbs.add(new PCB(lines, prioridade, arrivalTime, quantum));
+            System.out.println("Processo com id " + (pcbs.size() - 1) + " criado.\n");
             System.out.println("Deseja adicionar um novo programa? S - Sim / N - Não");
             System.out.print("Opção: ");
             opcao = scanner.next();
@@ -50,6 +51,7 @@ public class Main {
         System.out.println("\n\nResultado da execução:");
         for (int i = 0; i < pcbs.size(); i++) {
             System.out.println("\nExecução do processo " + (i + 1) + ": ");
+            System.out.println("Tempo na fila de admissão: " + pcbs.get(i).getAdmissionTime());
             System.out.println("Tempo de espera: " + pcbs.get(i).getWaitingTime());
             System.out.println("Tempo em processo: " + pcbs.get(i).getProcessingTime());
             System.out.println("Tempo total: " + pcbs.get(i).getTurnaroundTime());

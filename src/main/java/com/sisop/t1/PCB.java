@@ -20,6 +20,7 @@ public class PCB {
     private Integer waitingTime;
     private Integer processingTime;
     private Integer turnaroundTime;
+    private Integer admissionTime;
 
     public PCB(List<String> lines, Integer priority, Integer arrivalTime, Integer quantum) {
         this.variables = new HashMap<>();
@@ -36,6 +37,7 @@ public class PCB {
         this.waitingTime = 0;
         this.processingTime = 0;
         this.turnaroundTime = 0;
+        this.admissionTime = 0;
         loadVariables(lines);
         loadLabels(lines);
         loadCode(lines);
@@ -157,6 +159,10 @@ public class PCB {
         return turnaroundTime;
     }
 
+    public Integer getAdmissionTime() {
+        return admissionTime;
+    }
+
     public void addWaitingTime() {
         this.waitingTime++;
     }
@@ -167,5 +173,9 @@ public class PCB {
 
     public void addTurnaroundTime() {
         this.turnaroundTime++;
+    }
+
+    public void addAdmissionTime() {
+        this.admissionTime++;
     }
 }

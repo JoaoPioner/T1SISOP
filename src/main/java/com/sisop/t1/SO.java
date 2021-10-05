@@ -39,10 +39,10 @@ public class SO {
             updateBlockedProcess();
             setPriorityRunningProcess();
             updateTimeInfos();
+            printAllProcess();
             processLine();
             time++;
             runningQuantum--;
-            printAllProcess();
         }
     }
 
@@ -90,6 +90,9 @@ public class SO {
         for (PCB pcb : blockList) {
             pcb.addTurnaroundTime();
         }
+        for (PCB pcb : admissionQueue) {
+            pcb.addAdmissionTime();
+        }
     }
 
     private void processLine() {
@@ -98,6 +101,7 @@ public class SO {
         }
         String line = runningPCB.getCode().get(runningPCB.getPc()).trim();
         String clearLine = line.replace("  ", " ");
+        System.out.println("Executando instrução: " + clearLine);
         executeInstruction(clearLine);
     }
 
@@ -182,6 +186,7 @@ public class SO {
             if (key.trim().equalsIgnoreCase("0")) {
                 runningPCB.setState(ProcessState.FINISHED);
                 runningPCB = null;
+                printAllProcess();
             }
             if (key.trim().equalsIgnoreCase("1")) {
                 int timeBlocked = new Random().nextInt(21) + 10;
@@ -190,6 +195,7 @@ public class SO {
                 blockList.add(runningPCB);
                 System.out.println("Acumulador: " + runningPCB.getAccumulator());
                 runningPCB = null;
+                printAllProcess();
             }
             if (key.trim().equalsIgnoreCase("2")) {
                 int timeBlocked = new Random().nextInt(21) + 10;
@@ -199,6 +205,7 @@ public class SO {
                 System.out.print("Digite um valor: ");
                 runningPCB.setAccumulator(input.nextInt());
                 runningPCB = null;
+                printAllProcess();
             }
         }
     }
